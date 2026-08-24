@@ -1,0 +1,6 @@
+Sistema aberto de gerenciamento de salas no CNAT
+
+Problema: Muitas vezes, acontece que algumas (ou, às vezes, quase todas) aulas de uma matéria são ministradas em uma sala diferente da que consta no cronograma oficial do SUAP, sendo também um problema, pois muitas vezes a notificação de onde a aula está realmente acontecendo chega de última hora no e-mail escolar ou chega apenas pela "boca do povo", causando atrasos.
+
+Solução: Um sistema que cadastre salas, matérias, cursos e horários de aula padrão do campus (importante para filtros no sistema já funcional), no qual os alunos, cadastrados com a conta escolar, possam informar onde vai acontecer ou está acontecendo uma aula naquele momento, com exclusão automática da informação após ao final do horário cadastrado para a aula. 
+A ideia é que no sistema haja upvotes e downvotes, para que outras pessoas possam negar ou ratificar a informação da aula que foi cadastrada por um dos alunos.
