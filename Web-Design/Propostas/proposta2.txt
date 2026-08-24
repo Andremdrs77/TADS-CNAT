@@ -4,3 +4,6 @@ Problema: Muitas vezes, acontece que algumas (ou, às vezes, quase todas) aulas 
 
 Solução: Um sistema que cadastre salas, matérias, cursos e horários de aula padrão do campus (importante para filtros no sistema já funcional), no qual os alunos, cadastrados com a conta escolar, possam informar onde vai acontecer ou está acontecendo uma aula naquele momento, com exclusão automática da informação após ao final do horário cadastrado para a aula. 
 A ideia é que no sistema haja upvotes e downvotes, para que outras pessoas possam negar ou ratificar a informação da aula que foi cadastrada por um dos alunos.
+
+
+Não apresentar essa ideia agora: pode ser implementada a função de cadastrar quais seriam os horários padrão das disciplinas e, apenas caso algum horário ou local de aula esteja fora dos padrões, ele poderia aparecer como prioridade na listagem de disciplinas, por ser mais "urgente".
