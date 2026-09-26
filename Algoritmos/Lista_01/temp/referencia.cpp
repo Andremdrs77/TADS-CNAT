@@ -1,3 +1,5 @@
+#include <iostream>
+
 struct cordenada {
     double x, y;
 }
