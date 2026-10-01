@@ -5,7 +5,7 @@
 .text
 main:
     	add  $4, $0, $0 #$4 = soma = 0
-    	lui  $8, 0x1001 #$8 = endereço inicial do vetor
+    	lui  $8, 0x1001 #$8 = endereco inicial do vetor
     	addi $20, $0, 6 #$20 = quantidade de elementos
 	add $22, $0, $0
 	
@@ -15,18 +15,18 @@ laco:
 	
 	lw $21, 0($8) #$21 = elemento atual
 	
-	#Verifica se é 0
+	#Verifica se e 0
 	beq $22, $0, adiciona
 	
-	#Verifica se é 1
+	#Verifica se e 1
 	addi $10, $0, 1
 	beq $22, $10, adiciona
 	
-	#Verifica se é 5
+	#Verifica se e 5
 	addi $10, $0, 5
 	beq $22, $10, adiciona
 	
-	#Se não for 0, 1 nem 5
+	#Se nao for 0, 1 nem 5
 	j continua
 	
 	
@@ -35,8 +35,8 @@ adiciona:
 	
 	
 continua:
-	addi $8, $8, 4 #próximo elemento (4 bytes)
-	addi $22, $22, 1 # próximo índice
+	addi $8, $8, 4 #proximo elemento (4 bytes)
+	addi $22, $22, 1 # proximo indice
 	addi $20, $20, -1 #decrementa contador
 	
 	j laco
