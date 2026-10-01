@@ -3,8 +3,8 @@
 void soma_arrays(int a[], int n, int x) {
     bool encontrou = false;
     for (int i = 0; i < n; i++) {
-        for (int j = i; j < n; j++) {
-            if (a[i] + a[j] == x and i != j){
+        for (int j = i + 1; j < n; j++) {
+            if (a[i] + a[j] == x){
                 encontrou = true;
                 std::cout << a[i] << " + " << a[j] << " = " << a[i] + a[j] << std::endl;
             }
