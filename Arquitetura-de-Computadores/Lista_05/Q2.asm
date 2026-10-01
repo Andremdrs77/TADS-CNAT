@@ -1,4 +1,3 @@
-.data #0x10010000
 .text 
 main:
 	lui $8, 0x1001 #endereco na memoria
