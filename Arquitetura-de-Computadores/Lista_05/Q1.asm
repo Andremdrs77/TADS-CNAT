@@ -22,6 +22,10 @@ laco:
 	addi $10, $0, 1
 	beq $22, $10, adiciona
 	
+	#Verifica se e 4
+	addi $10, $0, 4
+	beq $22, $10, troca4
+	
 	#Verifica se e 5
 	addi $10, $0, 5
 	beq $22, $10, adiciona
@@ -33,6 +37,8 @@ laco:
 adiciona:
 	add $4, $4, $21 #soma += elemento
 	
+	j continua
+	
 	
 continua:
 	addi $8, $8, 4 #proximo elemento (4 bytes)
@@ -42,8 +48,16 @@ continua:
 	j laco
 	
 	
+troca4:
+	addi $11, $0, 100
+	sw $11, 0($8)
+	
+	j continua
+	
+	
 terminou:	
 	sw $4, 4($8) #guarda resultado
+
 	addi $2, $0, 1
 	syscall
 	
