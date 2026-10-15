@@ -2,7 +2,7 @@
 main:
     lui $8, 0x1001
 
-    # Gradiente do céu: 56 linhas, 128 unidades por linha
+    # Gradiente do ceu: 56 linhas, 128 unidades por linha
     addi $10, $0, 56
     addi $18, $0, 0
 
@@ -163,7 +163,7 @@ desenharGalinha:
     sw $22, 1556($27)
     sw $22, 1560($27)
     sw $22, 1564($27)
-    sw $22, 1568($27)
+    sw $24, 1568($27)
     sw $24, 1572($27)
 
     # Linha 4: parte inferior do corpo
@@ -197,8 +197,6 @@ desenharGalinha:
     
 
 player:
-    lui $11, 0x00ff
-    ori $11, $11, 0xffff
 
     # Posicionar o jogador na penultima linha, coluna inicial 64
     lui $8, 0x1001
@@ -209,8 +207,7 @@ player:
     lui $16, 0xffff
 
     lw $12, 0($8)
-    sw $11, 0($8)
-
+    sw $22, 0($8)
 plrGo:
     # Esperar uma tecla
     lw $17, 0($16)
@@ -240,7 +237,6 @@ digA:
 
     addi $14, $0, -4
     j moverPlayer
-
 digD:
     # Ultima coluna: nao mover mais para a direita
     lui $13, 0x1001
@@ -256,7 +252,7 @@ moverPlayer:
     sw $12, 0($8)
     add $8, $15, $0
     add $12, $13, $0
-    sw $11, 0($8)
+    sw $22, 0($8)
 
     j plrGo
 
@@ -266,7 +262,7 @@ fim:
 
 
 nulltime: # Rotina para gastar tempo: $25
-    addi $25, $0, 20
+    addi $25, $0, 0
 
 ntfor:
     beq $25, $0, ntfim
