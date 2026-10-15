@@ -6,11 +6,10 @@ main:
     addi $10, $0, 56
     addi $18, $0, 0
 
-desenharCeu:
+desenharCeu: # Registradores usados: $18, $19, $20, $21
     beq $10, $0, redefinirDesenho
 
     # R = 80 + linha * 3
-    addi $19, $0, 80
     addi $20, $0, 3
     mult $18, $20
     mflo $19
@@ -32,7 +31,7 @@ desenharCeu:
 
     addi $9, $0, 128
 
-linhaCeu:
+linhaCeu: # Registradores usados: $9, $10, $18
     sw $4, 0($8)
     addi $8, $8, 4
     addi $9, $9, -1
@@ -50,7 +49,7 @@ redefinirDesenho:
     lui $4, 0x004c
     ori $4, $4, 0xaf50
 
-desenharGrama:
+desenharGrama: # Registradores usados: $10
     beq $10, $0, player
 
     sw $4, 0($8)
@@ -58,7 +57,7 @@ desenharGrama:
     addi $10, $10, -1
     j desenharGrama
 
-player:
+player: # Registradores usados: $11, $12, $14, $16
     lui $11, 0x00ff
     ori $11, $11, 0xffff
 
@@ -71,7 +70,7 @@ player:
 
     addi $14, $0, 4
 
-plrGo:
+plrGo: # Registradores usados: $11 - $17
     add $15, $8, $14
     lw $13, 0($15)
     sw $12, 0($8)
@@ -123,8 +122,8 @@ fim:
     addi $2, $0, 10
     syscall
 
-# Rotina para gastar tempo
-nulltime:
+
+nulltime: # Rotina para gastar tempo: $25
     addi $25, $0, 200
 
 ntfor:
