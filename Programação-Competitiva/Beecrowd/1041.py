@@ -1,4 +1,4 @@
-//Runtime error
+#Runtime error
 
 X = float(input())
 Y = float(input())
