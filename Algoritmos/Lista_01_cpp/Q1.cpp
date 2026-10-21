@@ -1,26 +1,19 @@
 #include <iostream>
-#include <algorithm>
 
-void verificarFotos(int X, int Y, int L, int H, int L2, int H2) {
-
-    if ((X * Y) >= (L * H) + (L2 * H2)) {
-        if ((L + L2 <= X && std::max(H, H2) <= Y) || (H + H2 <= Y && std::max(L, L2) <= X) || (L + H2 <= X && std::max(L2, H) <= Y) || (H + L2 <= X && std::max(L, H2) <= Y || L + L2 <= Y && std::max(H, H2) <= X || H + H2 <= X && std::max(L, L2) <= Y) || (L + H2 <= Y && std::max(H, L2) <= X) || (H + L2 <= Y && std::max(L, H2) <= X)) {
-            std::cout << "S" << std::endl;
-        } else {
-            std::cout << "N" << std::endl;
-        }
-    } else {
-        std::cout << "N" << std::endl;
-    }
+long soma(long a, long b) {
+    long r = a + b;
+    return r;
 }
 
 int main() {
-    int X, Y, L, H, L2, H2;
-    std::cin >> X >> Y;
-    std::cin >> L >> H;
-    std::cin >> L2 >> H2;
-
-    verificarFotos(X, Y, L, H, L2, H2);
-    
+    long a, b;
+    std::cin >> a >> b;
+    long s = soma (a, b);
+    std::cout << s << std::endl;
     return 0;
 }
+
+// A) Feito
+// B) 30, 0, -5, 2000000000, 4, -1294967296, 935362436
+// C) O primeiro, quarto e sexto resultados apenas fazem uma soma comum, os demais somam números negativos, ou seja, algo como a + (-b), no entanto, os últimos dois resultados estão incorretos.
+// D) Os últimos resultados estão incorretos pois passam de 32 bits (-2.147.483.647 a 2.147.483.647). A correção é usar 'long' ou 'long long' ao definir as variáveis para poder ter mais bits.

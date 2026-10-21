@@ -1,24 +1,26 @@
-// INÍCIO
+#include <iostream>
+#include <algorithm>
 
-// 	DECLARE INTEIRO L, H, X, Y, L2, H2;
-// 	DECLARE BOOLEANO CABE;
+void verificarFotos(int X, int Y, int L, int H, int L2, int H2) {
 
-// 	LEIA X, Y;
-// 	LEIA L, H;
-	
-// 	L2 <- L;
-// 	H2 <- H;
-// 	CABE <- FALSO;
+    if ((X * Y) >= (L * H) + (L2 * H2)) {
+        if ((L + L2 <= X && std::max(H, H2) <= Y) || (H + H2 <= Y && std::max(L, L2) <= X) || (L + H2 <= X && std::max(L2, H) <= Y) || (H + L2 <= X && std::max(L, H2) <= Y || L + L2 <= Y && std::max(H, H2) <= X || H + H2 <= X && std::max(L, L2) <= Y) || (L + H2 <= Y && std::max(H, L2) <= X) || (H + L2 <= Y && std::max(L, H2) <= X)) {
+            std::cout << "S" << std::endl;
+        } else {
+            std::cout << "N" << std::endl;
+        }
+    } else {
+        std::cout << "N" << std::endl;
+    }
+}
 
-// 	LEIA L, H;
+int main() {
+    int X, Y, L, H, L2, H2;
+    std::cin >> X >> Y;
+    std::cin >> L >> H;
+    std::cin >> L2 >> H2;
 
-// 	SE (L * H) + (L2 * H2) <= (X * Y):
-// 		SE L + L2 <= X E L + L2 <= Y:
-// 			CABE <- VERDADEIRO;
-// 		SE H + H2 <= Y OU H + H2 <= X:
-// 			CABE <- VERDADEIRO;	
-		
-// 	SENÃO:
-// 		ESCREVA "N";
-
-// FIM
+    verificarFotos(X, Y, L, H, L2, H2);
+    
+    return 0;
+}
