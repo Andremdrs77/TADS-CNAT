@@ -1,6 +1,6 @@
 #include <iostream>
 
-void verificar_par(int a[], int n, int s) {
+void verificarPar(int a[], int n, int s) {
     for (int i = 0; i < n; i++) {
         for (int j = i + 1; j < n; j++) {
             if (a[i] + a[j] == s) {
@@ -23,7 +23,7 @@ int main() {
         std::cin >> a[i];
     }
 
-    verificar_par(a, n, s);
+    verificarPar(a, n, s);
 
     return 0;
 }
