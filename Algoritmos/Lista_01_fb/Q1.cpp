@@ -24,3 +24,5 @@ int main() {
     
     return 0;
 }
+
+// Eu poderia ter criado alguma funçãozinha pra substituir std::max(), no entanto, achei mais prático usá-la, se não houver problema.
