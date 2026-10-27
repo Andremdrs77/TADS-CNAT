@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portal Ágil</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">✦</span>
+        <span
+          >portal<span style="color: var(--brand)">ágil</span
+          ><small>Gestão integrada</small></span
+        >
+      </a>
+      <div class="header-title">
+        <h1>Portal de Gestão</h1>
+        <p>Informação organizada. Decisões inteligentes.</p>
+      </div>
+      <div class="user-area">
+        <span class="avatar">FP</span>
+        <span class="user-copy"
+          ><strong>Fabiano Papaiz</strong><span>Administrador</span></span
+        >
+      </div>
+    </header>
+    <nav class="main-nav">
+      <div class="nav-inner">
+        <div class="nav-item">
+          <a class="nav-link" href="index.html"
+            >Cadastros <span class="caret">▾</span></a
+          >
+          <div class="dropdown">
+            <a href="produtos.html">Produtos</a>
+            <a href="clientes.html">Clientes</a>
+            <a href="fornecedores.html">Fornecedores</a>
+          </div>
+        </div>
+        <div class="nav-item">
+          <a class="nav-link" href="sobre.html">Sobre Nós</a>
+        </div>
+        <div class="nav-item">
+          <a class="nav-link" href="contato.html">Contato</a>
+        </div>
+      </div>
+    </nav>
+    <main>
+      <section class="page-intro">
+        <div>
+          <p class="eyebrow">Cadastros / Clientes</p>
+          <h2>Clientes</h2>
+          <p class="lead">
+            Consulte os dados de contato e a situação dos clientes cadastrados.
+          </p>
+        </div>
+        <span class="pill">● Dados de demonstração</span>
+      </section>
+      <section class="panel">
+        <div class="panel-top">
+          <strong id="table-heading">Carteira de clientes</strong
+          ><span class="search-hint">5 registros de exemplo</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Cliente</th>
+                <th scope="col">Código</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Telefone</th>
+                <th scope="col">Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="name-cell"
+                    ><span class="item-icon">👩</span>Ana Costa</span
+                  >
+                </td>
+                <td>CLI-001</td>
+                <td>ana.costa@example.com</td>
+                <td>(84) 99912-3456</td>
+                <td><span class="status active">Ativo</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="name-cell"
+                    ><span class="item-icon">👨</span>Bruno Almeida</span
+                  >
+                </td>
+                <td>CLI-002</td>
+                <td>bruno.almeida@example.com</td>
+                <td>(84) 98823-4567</td>
+                <td><span class="status active">Ativo</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="name-cell"
+                    ><span class="item-icon">👩</span>Carla Souza</span
+                  >
+                </td>
+                <td>CLI-003</td>
+                <td>carla.souza@example.com</td>
+                <td>(83) 97734-5678</td>
+                <td><span class="status pending">Pendente</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="name-cell"
+                    ><span class="item-icon">👨</span>Diego Martins</span
+                  >
+                </td>
+                <td>CLI-004</td>
+                <td>diego.martins@example.com</td>
+                <td>(85) 96645-6789</td>
+                <td><span class="status active">Ativo</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="name-cell"
+                    ><span class="item-icon">👩</span>Elisa Ferreira</span
+                  >
+                </td>
+                <td>CLI-005</td>
+                <td>elisa.ferreira@example.com</td>
+                <td>(81) 95556-7890</td>
+                <td><span class="status inactive">Inativo</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <span>© <strong>Portal Ágil</strong> · by Fabiano Papaiz</span
+      ><span>Interface responsiva · HTML semântico + CSS moderno</span>
+    </footer>
+  </body>
+</html>
