@@ -192,69 +192,226 @@ desenharGalinha:
     sw $28, 2596($27)
 
     jr $31
-
-
     
-
+    
 player:
-
-    # Posicionar o jogador na penultima linha, coluna inicial 64
+    # Endereco inicial da cesta
     lui $8, 0x1001
-    addi $8, $8, 31744
-    addi $8, $8, 256
+    addi $8, $8, 30932
 
-    # Endereco do Keyboard and Display MMIO
+    # Endereco do teclado MMIO
     lui $16, 0xffff
 
-    lw $12, 0($8)
-    sw $22, 0($8)
-plrGo:
-    # Esperar uma tecla
-    lw $17, 0($16)
-    beq $17, $0, plrGo
+    # Reservar memoria para salvar o cenario sob a cesta
+    addi $4, $0, 640
+    addi $2, $0, 9
+    syscall
+    add $30, $2, $0
 
+    # Salvar o fundo original e desenhar a cesta
+    jal salvarCenario
+    jal desenharCesto
+
+plrGo:
+    # Verificar se existe uma tecla disponivel
+    lw $17, 0($16)
+    andi $17, $17, 1
+    beq $17, $0, continuarCiclo
+
+    # Ler o codigo da tecla
     lw $17, 4($16)
 
     # Espaco encerra
     addi $13, $0, 32
     beq $17, $13, fim
 
-    # Tecla A: mover para a esquerda
+    # Tecla A
     addi $13, $0, 'a'
     beq $17, $13, digA
 
-    # Tecla D: mover para a direita
+    # Tecla D
     addi $13, $0, 'd'
     beq $17, $13, digD
 
-    j plrGo
+    j continuarCiclo
 
 digA:
-    # Primeira coluna: nao mover mais para a esquerda
+    # Limite esquerdo
     lui $13, 0x1001
-    addi $13, $13, 31744
-    beq $8, $13, plrGo
+    addi $13, $13, 30732
+    slt $15, $8, $13
+    bne $15, $0, continuarCiclo
 
     addi $14, $0, -4
-    j moverPlayer
+    j moverCesto
+
 digD:
-    # Ultima coluna: nao mover mais para a direita
+    # Limite direito
     lui $13, 0x1001
-    addi $13, $13, 32252
-    beq $8, $13, plrGo
+    addi $13, $13, 31156
+    slt $15, $13, $8
+    bne $15, $0, continuarCiclo
 
     addi $14, $0, 4
-    j moverPlayer
+    j moverCesto
+    
+moverCesto:
+    # Restaurar o cenario na posicao antiga
+    jal restaurarCenario
 
-moverPlayer:
-    add $15, $8, $14
-    lw $13, 0($15)
-    sw $12, 0($8)
-    add $8, $15, $0
-    add $12, $13, $0
-    sw $22, 0($8)
+    # Atualizar a posicao da cesta
+    add $8, $8, $14
+
+    # Salvar o cenario na nova posicao
+    jal salvarCenario
+
+    # Desenhar a cesta na nova posicao
+    jal desenharCesto
 
     j plrGo
+
+
+continuarCiclo:
+    j plrGo
+
+# Salvar o cenario sob a cesta
+# $8  = endereco de referencia da cesta
+# $30 = endereco da memoria reservada
+# Regiao: 8 linhas x 18 unidades
+
+# Salvar o cenario sob a cesta
+salvarCenario:
+    add $6, $31, $0
+    addi $13, $8, -2568
+    add $15, $30, $0
+    addi $10, $0, 8
+
+salvarLinha:
+    addi $9, $0, 20
+
+salvarUnidade:
+    lw $5, 0($13)
+    sw $5, 0($15)
+
+    addi $13, $13, 4
+    addi $15, $15, 4
+    addi $9, $9, -1
+    bne $9, $0, salvarUnidade
+
+    addi $13, $13, 432
+    addi $10, $10, -1
+    bne $10, $0, salvarLinha
+
+    jr $6
+
+
+# Restaurar o cenario sob a cesta
+restaurarCenario:
+    add $6, $31, $0
+    addi $13, $8, -2568
+    add $15, $30, $0
+    addi $10, $0, 8
+
+restaurarLinha:
+    addi $9, $0, 20
+
+restaurarUnidade:
+    lw $5, 0($15)
+    sw $5, 0($13)
+
+    addi $13, $13, 4
+    addi $15, $15, 4
+    addi $9, $9, -1
+    bne $9, $0, restaurarUnidade
+
+    addi $13, $13, 432
+    addi $10, $10, -1
+    bne $10, $0, restaurarLinha
+
+    jr $6
+    
+# Cesto marrom: 7 unidades de largura x 3 de altura.
+# $8 = endereco do canto superior esquerdo.
+# $25 = cor marrom.
+# Formato: laterais e fundo, com interior vazio.
+
+desenharCesto:
+
+    # Mais 4 linhas acima: duas colunas por linha
+    sw $25, -1032($8)
+    sw $25, -1028($8)
+    sw $25, -1544($8)
+    sw $25, -1544($8)
+    sw $25, -1540($8)
+    sw $25, -2056($8)
+    sw $25, -2052($8)
+    sw $25, -2568($8)
+    sw $25, -2564($8)
+    
+    # Linha superior: laterais
+    sw $25, -1032($8)
+    sw $25, -1028($8)
+    sw $25, -960($8)
+    sw $25, -956($8)
+
+    sw $25, -1544($8)
+    sw $25, -1540($8)
+    sw $25, -1472($8)
+    sw $25, -1468($8)
+
+    sw $25, -2056($8)
+    sw $25, -2052($8)
+    sw $25, -1984($8)
+    sw $25, -1980($8)
+
+    sw $25, -2568($8)
+    sw $25, -2564($8)
+    sw $25, -2496($8)
+    sw $25, -2492($8)
+    sw $25, -520($8)
+    sw $25, -516($8)
+    sw $25, -448($8)
+    sw $25, -444($8)
+    
+    sw $25, -8($8)
+    sw $25, -4($8)
+    sw $25, 0($8)
+    sw $25, 60($8)
+    sw $25, 64($8)
+    sw $25, 68($8)
+
+    # Linha do meio: laterais
+	sw $25, 508($8)
+	sw $25, 512($8)
+	sw $25, 516($8)
+	sw $25, 520($8)
+	sw $25, 524($8)
+	sw $25, 528($8)
+	sw $25, 532($8)
+	sw $25, 536($8)
+	sw $25, 540($8)
+	sw $25, 544($8)
+	sw $25, 548($8)
+	sw $25, 552($8)
+	sw $25, 556($8)
+	sw $25, 560($8)
+	sw $25, 564($8)
+	sw $25, 568($8)
+	sw $25, 572($8)
+	sw $25, 576($8)
+	
+    # Linha inferior: fundo completo
+    addi $9, $0, 16
+    addi $13, $8, 1024
+
+desenharFundoCesto:
+    sw $25, 0($13)
+    addi $13, $13, 4
+    addi $9, $9, -1
+    bne $9, $0, desenharFundoCesto
+
+    jr $31
+
 
 fim:
     addi $2, $0, 10
