@@ -78,7 +78,7 @@ desenharGalinhas:
     # Cores
     
     lui $7, 0x00ec
-    ori $7, $7, 0x9c66          # Cor do ovo - guardei aqui, mas vou usar so depois
+    ori $7, $7, 0x9c66         # Cor do ovo - guardei aqui, mas vou usar so depois
     
     lui $22, 0x00ff
     ori $22, $22, 0xffff       # Branco
@@ -427,7 +427,7 @@ atualizarOvo:
 
     # Descer uma linha
     addi $29, $29, 1024
-    beq $29, $12, ovoChegou
+    beq $29, $12, verificarCaptura
 
     # Salvar o fundo da nova posicao
     lw $4, 0($29)
@@ -478,8 +478,37 @@ atualizarOvo:
     jr $6
 
 
-ovoChegou:
-    # Iniciar outro ovo sem perder o retorno do ciclo
+verificarCaptura:
+    # Obter a posicao horizontal do cesto
+    andi $13, $8, 511
+
+    # Limite esquerdo do cesto
+    addi $13, $13, -8
+
+    # Limite direito do cesto
+    andi $14, $8, 511
+    addi $14, $14, 68
+
+    # Obter a posicao horizontal do ovo
+    andi $15, $29, 511
+
+    addi $5, $15, 8
+    slt $17, $5, $13
+    bne $17, $0, ovoPerdido
+
+    # Verificar se o ovo esta depois do limite direito
+    slt $17, $14, $15
+    bne $17, $0, ovoPerdido
+
+capturou:
+    addi $2, $0, 1
+    addi $4, $0, 1
+    syscall
+
+    jal iniciarOvo
+    jr $6
+
+ovoPerdido:
     jal iniciarOvo
     jr $6
     
