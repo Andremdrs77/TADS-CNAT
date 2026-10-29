@@ -76,6 +76,10 @@ desenharPlataforma:
 
 desenharGalinhas:
     # Cores
+    
+    lui $7, 0x00ec
+    ori $7, $7, 0x9c66          # Cor do ovo - guardei aqui, mas vou usar so depois
+    
     lui $22, 0x00ff
     ori $22, $22, 0xffff       # Branco
 
@@ -89,6 +93,8 @@ desenharGalinhas:
     ori $25, $25, 0x5a2b       # Marrom
 
     addi $26, $0, 0            # Preto
+    
+    
 
     lui $28, 0x00d9
     ori $28, $28, 0xa441       # Dourado do ninho
@@ -149,7 +155,6 @@ desenharGalinha:
     sw $22, 1040($27)
     sw $22, 1044($27)
     sw $22, 1048($27)
-    sw $22, 1044($27)
     sw $22, 1052($27)
     sw $26, 1056($27)
 
@@ -212,10 +217,17 @@ player:
     jal salvarCenario
     jal desenharCesto
 
-        # Inicializar o sistema de ovos
+    # Inicializar o sistema de ovos
     addi $3, $0, 0        # Indice da proxima galinha
     addi $11, $0, 20000   # Intervalo entre movimentos do ovo
 
+    # Reservar 48 bytes para salvar o fundo do ovo
+    addi $4, $0, 48
+    addi $2, $0, 9
+    syscall
+    add $27, $2, $0
+
+    
     jal iniciarOvo
     
 plrGo:
@@ -299,21 +311,26 @@ continuarCiclo:
 # $12 = endereco onde o ovo desaparece
 # $7  = cor original do fundo
 
+# Ovo: 3 colunas x 4 linhas
+# $29 = endereco atual do ovo
+# $12 = endereco em que o ovo desaparece
+# $27 = endereco da memoria reservada para as 12 cores
+# $3  = indice da ultima galinha escolhida
+# $22 = branco
+
 iniciarOvo:
 escolherGalinha:
-    # Gerar um numero aleatorio entre 0 e 4
+    # Sortear uma galinha entre 0 e 4
     addi $4, $0, 0
     addi $5, $0, 5
     addi $2, $0, 42
     syscall
 
-    # Evitar repetir a galinha do ovo anterior
+    # Evitar repetir a galinha anterior
     beq $4, $3, escolherGalinha
-
-    # Guardar o indice da galinha escolhida
     add $3, $4, $0
 
-    # Endereco inicial: galinha 1 + linha abaixo do ninho
+    # Calcular a posicao inicial do ovo
     lui $29, 0x1001
     addi $29, $29, 5680
 
@@ -323,43 +340,147 @@ escolherGalinha:
     mflo $13
     add $29, $29, $13
 
-    # O ovo desaparece ao chegar a linha 55
+    # O ovo desaparece ao chegar ao topo da cesta
     addi $12, $29, 22528
 
-    # Guardar o fundo e desenhar o ovo branco
-    lw $7, 0($29)
-    sw $22, 0($29)
+    # Salvar as 12 cores originais na memoria reservada
+    lw $4, 0($29)
+    sw $4, 0($27)
+    lw $4, 4($29)
+    sw $4, 4($27)
+    lw $4, 8($29)
+    sw $4, 8($27)
 
-iniciarOvoFim:
+    lw $4, 512($29)
+    sw $4, 12($27)
+    lw $4, 516($29)
+    sw $4, 16($27)
+    lw $4, 520($29)
+    sw $4, 20($27)
+
+    lw $4, 1024($29)
+    sw $4, 24($27)
+    lw $4, 1028($29)
+    sw $4, 28($27)
+    lw $4, 1032($29)
+    sw $4, 32($27)
+
+    lw $4, 1536($29)
+    sw $4, 36($27)
+    lw $4, 1540($29)
+    sw $4, 40($27)
+    lw $4, 1544($29)
+    sw $4, 44($27)
+
+    # Desenhar o ovo branco: 3 colunas x 4 linhas
+    sw $7, 0($29)
+    sw $7, 4($29)
+    sw $7, 8($29)
+
+    sw $7, 512($29)
+    sw $7, 516($29)
+    sw $7, 520($29)
+
+    sw $7, 1024($29)
+    sw $7, 1028($29)
+    sw $7, 1032($29)
+
+    sw $7, 1536($29)
+    sw $7, 1540($29)
+    sw $7, 1544($29)
+
     jr $31
 
-# Avancar o ovo uma linha
 
 atualizarOvo:
     # Preservar o endereco de retorno
     add $6, $31, $0
 
-    # Restaurar o fundo na posicao anterior
-    sw $7, 0($29)
+    # Restaurar o fundo da posicao anterior
+    lw $4, 0($27)
+    sw $4, 0($29)
+    lw $4, 4($27)
+    sw $4, 4($29)
+    lw $4, 8($27)
+    sw $4, 8($29)
 
-    # Descer uma linha: 512 bytes
-    addi $29, $29, 512
+    lw $4, 12($27)
+    sw $4, 512($29)
+    lw $4, 16($27)
+    sw $4, 516($29)
+    lw $4, 20($27)
+    sw $4, 520($29)
 
-    # Verificar se chegou ao topo da cesta
+    lw $4, 24($27)
+    sw $4, 1024($29)
+    lw $4, 28($27)
+    sw $4, 1028($29)
+    lw $4, 32($27)
+    sw $4, 1032($29)
+
+    lw $4, 36($27)
+    sw $4, 1536($29)
+    lw $4, 40($27)
+    sw $4, 1540($29)
+    lw $4, 44($27)
+    sw $4, 1544($29)
+
+    # Descer uma linha
+    addi $29, $29, 1024
     beq $29, $12, ovoChegou
 
-    # Guardar o fundo da nova posicao
-    lw $7, 0($29)
+    # Salvar o fundo da nova posicao
+    lw $4, 0($29)
+    sw $4, 0($27)
+    lw $4, 4($29)
+    sw $4, 4($27)
+    lw $4, 8($29)
+    sw $4, 8($27)
 
-    # Desenhar o ovo
-    sw $22, 0($29)
+    lw $4, 512($29)
+    sw $4, 12($27)
+    lw $4, 516($29)
+    sw $4, 16($27)
+    lw $4, 520($29)
+    sw $4, 20($27)
+
+    lw $4, 1024($29)
+    sw $4, 24($27)
+    lw $4, 1028($29)
+    sw $4, 28($27)
+    lw $4, 1032($29)
+    sw $4, 32($27)
+
+    lw $4, 1536($29)
+    sw $4, 36($27)
+    lw $4, 1540($29)
+    sw $4, 40($27)
+    lw $4, 1544($29)
+    sw $4, 44($27)
+
+    # Desenhar o ovo na nova posicao
+    sw $7, 0($29)
+    sw $7, 4($29)
+    sw $7, 8($29)
+
+    sw $7, 512($29)
+    sw $7, 516($29)
+    sw $7, 520($29)
+
+    sw $7, 1024($29)
+    sw $7, 1028($29)
+    sw $7, 1032($29)
+
+    sw $7, 1536($29)
+    sw $7, 1540($29)
+    sw $7, 1544($29)
 
     jr $6
 
-ovoChegou:
-    # O proximo ovo surge imediatamente
-    jal iniciarOvo
 
+ovoChegou:
+    # Iniciar outro ovo sem perder o retorno do ciclo
+    jal iniciarOvo
     jr $6
     
 # Salvar o cenario sob a cesta
@@ -429,7 +550,6 @@ desenharCesto:
     sw $25, -1032($8)
     sw $25, -1028($8)
     sw $25, -1544($8)
-    sw $25, -1544($8)
     sw $25, -1540($8)
     sw $25, -2056($8)
     sw $25, -2052($8)
@@ -469,9 +589,9 @@ desenharCesto:
     sw $25, 68($8)
 
     # Linha do meio: laterais
-	sw $25, 508($8)
-	sw $25, 512($8)
-	sw $25, 516($8)
+    	sw $25, 508($8)
+    	sw $25, 512($8)
+    	sw $25, 516($8)
 	sw $25, 520($8)
 	sw $25, 524($8)
 	sw $25, 528($8)
@@ -504,10 +624,6 @@ desenharFundoCesto:
 fim:
     addi $2, $0, 10
     syscall
-
-
-nulltime: # Rotina para gastar tempo: $25
-    addi $25, $0, 0
 
 ntfor:
     beq $25, $0, ntfim
