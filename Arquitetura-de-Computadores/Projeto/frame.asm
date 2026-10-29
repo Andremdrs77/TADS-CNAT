@@ -273,7 +273,7 @@ digA:
     slt $15, $8, $13
     bne $15, $0, continuarCiclo
 
-    addi $14, $0, -8
+    addi $14, $0, -12
     j moverCesto
 
 digD:
@@ -283,7 +283,7 @@ digD:
     slt $15, $13, $8
     bne $15, $0, continuarCiclo
 
-    addi $14, $0, 8
+    addi $14, $0, 12
     j moverCesto
     
 moverCesto:
