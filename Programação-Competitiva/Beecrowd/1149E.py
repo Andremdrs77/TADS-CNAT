@@ -1,9 +1,12 @@
-A, N = map(int, input().split())
+valores = list(map(int, input().split()))
+A = valores[0]
 
-while not N > 0:
-    N = int(input())
+for valor in valores[1:]:
+    if valor > 0:
+        N = valor
 
 for i in range(N):
-    A = A + i
+    if i > 0:
+        A = A + A + i
 
 print(A)
