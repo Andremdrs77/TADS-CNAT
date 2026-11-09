@@ -1,7 +1,4 @@
-#Runtime error
-
-X = float(input())
-Y = float(input())
+X, Y = map(float, input().split())
 
 if X == Y and Y == 0:
     print("Origem")
