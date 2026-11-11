@@ -1,5 +1,33 @@
 .text
 main:
+    # Endereco inicial da memoria grafica
+    lui $8, 0x1001
+
+    # Cor da tela inicial (azul escuro)
+    lui $4, 0x0010
+    ori $4, $4, 0x2040
+
+    # Preencher a tela: 8192 unidades
+    addi $10, $0, 8192
+
+telaInicial:
+    sw $4, 0($8)
+    addi $8, $8, 4
+    addi $10, $10, -1
+    bne $10, $0, telaInicial
+
+    # Endereco do teclado MMIO
+    lui $16, 0xffff
+
+aguardarTecla:
+    lw $17, 0($16)
+    andi $17, $17, 1
+    beq $17, $0, aguardarTecla
+
+    # Ler a tecla pressionada
+    lw $17, 4($16)
+
+    # Preparar o endereco inicial do cenario
     lui $8, 0x1001
 
     # Gradiente do ceu: 56 linhas, 128 unidades por linha
@@ -227,6 +255,8 @@ player:
     syscall
     add $27, $2, $0
 
+    # Inicializar contador de ovos que cairam
+    addi $26, $0, 0
     
     jal iniciarOvo
     
@@ -479,6 +509,9 @@ atualizarOvo:
 
 
 verificarCaptura:
+    # Incrementar contador de ovos que cairam
+    addi $26, $26, 1
+
     # Obter a posicao horizontal do cesto
     andi $13, $8, 511
 
@@ -505,10 +538,16 @@ capturou:
     addi $4, $0, 1
     syscall
 
-    jal iniciarOvo
-    jr $6
+    j verificarFim
 
 ovoPerdido:
+    j verificarFim
+
+verificarFim:
+    # Verificar se cinco ovos ja cairam
+    addi $5, $0, 5
+    beq $26, $5, fim
+
     jal iniciarOvo
     jr $6
     
