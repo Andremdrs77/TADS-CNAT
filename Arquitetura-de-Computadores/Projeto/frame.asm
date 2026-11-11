@@ -4,8 +4,7 @@ main:
     lui $8, 0x1001
 
     # Cor da tela inicial (azul escuro)
-    lui $4, 0x0010
-    ori $4, $4, 0x2040
+    ori $4, $4, 0x5b85
 
     # Preencher a tela: 8192 unidades
     addi $10, $0, 8192
@@ -16,6 +15,207 @@ telaInicial:
     addi $10, $10, -1
     bne $10, $0, telaInicial
 
+    # ===== Titulo: EGG CATCHER (amarelo) =====
+    lui $22, 0x00ff
+    ori $22, $22, 0xe040
+
+    lui $27, 0x1001
+    addi $27, $27, 4264       # x = 42, y = 20
+
+    jal letraE
+    addi $27, $27, 16
+    jal letraG
+    addi $27, $27, 16
+    jal letraG
+    addi $27, $27, 16
+    addi $27, $27, 16          # espaco
+    jal letraC
+    addi $27, $27, 16
+    jal letraA
+    addi $27, $27, 16
+    jal letraT
+    addi $27, $27, 16
+    jal letraC
+    addi $27, $27, 16
+    jal letraH
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraR
+
+    # ===== Linha 1: PRESSIONE QUALQUER TECLA (branco) =====
+    lui $22, 0x00ff
+    ori $22, $22, 0xffff
+
+    lui $27, 0x1001
+    addi $27, $27, 11328       # x = 16, y = 36
+
+    jal letraP
+    addi $27, $27, 16
+    jal letraR
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraS
+    addi $27, $27, 16
+    jal letraS
+    addi $27, $27, 16
+    jal letraI
+    addi $27, $27, 16
+    jal letraO
+    addi $27, $27, 16
+    jal letraN
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    addi $27, $27, 16          # espaco
+    jal letraQ
+    addi $27, $27, 16
+    jal letraU
+    addi $27, $27, 16
+    jal letraA
+    addi $27, $27, 16
+    jal letraL
+    addi $27, $27, 16
+    jal letraQ
+    addi $27, $27, 16
+    jal letraU
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraR
+    addi $27, $27, 16
+    addi $27, $27, 16          # espaco
+    jal letraT
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraC
+    addi $27, $27, 16
+    jal letraL
+    addi $27, $27, 16
+    jal letraA
+
+    # ===== Linha 2: PARA INICIAR =====
+    lui $27, 0x1001
+    addi $27, $27, 15520       # x = 40, y = 44
+
+    jal letraP
+    addi $27, $27, 16
+    jal letraA
+    addi $27, $27, 16
+    jal letraR
+    addi $27, $27, 16
+    jal letraA
+    addi $27, $27, 16
+    addi $27, $27, 16          # espaco
+    jal letraI
+    addi $27, $27, 16
+    jal letraN
+    addi $27, $27, 16
+    jal letraI
+    addi $27, $27, 16
+    jal letraC
+    addi $27, $27, 16
+    jal letraI
+    addi $27, $27, 16
+    jal letraA
+    addi $27, $27, 16
+    jal letraR
+
+    # Creditos 
+    lui $22, 0x00cc
+    ori $22, $22, 0xcccc
+
+    # ANDRE MEDEIROS SILVA
+    lui $27, 0x1001
+    addi $27, $27, 22624       # x = 24, y = 44
+
+    jal letraA
+    addi $27, $27, 16
+    jal letraN
+    addi $27, $27, 16
+    jal letraD
+    addi $27, $27, 16
+    jal letraR
+    addi $27, $27, 16
+    jal letraE
+    jal acentoAgudo            # acento do E
+    addi $27, $27, 16
+    addi $27, $27, 16          # espaco
+    jal letraM
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraD
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraI
+    addi $27, $27, 16
+    jal letraR
+    addi $27, $27, 16
+    jal letraO
+    addi $27, $27, 16
+    jal letraS
+    addi $27, $27, 16
+    addi $27, $27, 16          # espaco
+    jal letraS
+    addi $27, $27, 16
+    jal letraI
+    addi $27, $27, 16
+    jal letraL
+    addi $27, $27, 16
+    jal letraV
+    addi $27, $27, 16
+    jal letraA
+
+    # EDUARDO BRAULIO
+    lui $27, 0x1001
+    addi $27, $27, 26248       # x = 34, y = 51
+
+    jal letraE
+    addi $27, $27, 16
+    jal letraD
+    addi $27, $27, 16
+    jal letraU
+    addi $27, $27, 16
+    jal letraA
+    addi $27, $27, 16
+    jal letraR
+    addi $27, $27, 16
+    jal letraD
+    addi $27, $27, 16
+    jal letraO
+    addi $27, $27, 16
+    addi $27, $27, 16          # espaco
+    jal letraB
+    addi $27, $27, 16
+    jal letraR
+    addi $27, $27, 16
+    jal letraA
+    jal acentoAgudo            # acento do A
+    addi $27, $27, 16
+    jal letraU
+    addi $27, $27, 16
+    jal letraL
+    addi $27, $27, 16
+    jal letraI
+    addi $27, $27, 16
+    jal letraO
+
+    # TADS
+    lui $27, 0x1001
+    addi $27, $27, 29920       # x = 56, y = 58
+
+    jal letraT
+    addi $27, $27, 16
+    jal letraA
+    addi $27, $27, 16
+    jal letraD
+    addi $27, $27, 16
+    jal letraS
+    
     # Endereco do teclado MMIO
     lui $16, 0xffff
 
@@ -701,4 +901,256 @@ ntfor:
     j ntfor
 
 ntfim:
+    jr $31
+
+# ===== LETRAS 3x5 =====
+# $27 = canto superior esquerdo, $22 = cor
+
+letraA:
+    sw $22, 4($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraC:
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 1024($27)
+    sw $22, 1536($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraE:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1536($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraG:
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 1024($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraH:
+    sw $22, 0($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraI:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 516($27)
+    sw $22, 1028($27)
+    sw $22, 1540($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraL:
+    sw $22, 0($27)
+    sw $22, 512($27)
+    sw $22, 1024($27)
+    sw $22, 1536($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraN:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraO:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraP:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 2048($27)
+    jr $31
+
+letraQ:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1540($27)
+    sw $22, 1544($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraR:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraS:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraT:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 516($27)
+    sw $22, 1028($27)
+    sw $22, 1540($27)
+    sw $22, 2052($27)
+    jr $31
+
+letraU:
+    sw $22, 0($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+    
+letraB:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    jr $31
+
+letraD:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    jr $31
+
+letraM:
+    sw $22, 0($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 516($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2056($27)
+    jr $31
+
+letraV:
+    sw $22, 0($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2052($27)
+    jr $31
+
+# Acento agudo: 1 pixel na linha acima da letra, coluna da direita
+acentoAgudo:
+    sw $22, -504($27)
     jr $31
