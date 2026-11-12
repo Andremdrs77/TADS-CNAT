@@ -4,7 +4,8 @@ main:
     lui $8, 0x1001
 
     # Cor da tela inicial (azul escuro)
-    ori $4, $4, 0x5b85
+    lui $5, 0x000b
+    ori $4, $4, 0x0230
 
     # Preencher a tela: 8192 unidades
     addi $10, $0, 8192
@@ -322,11 +323,9 @@ desenharGalinhas:
 
     addi $26, $0, 0            # Preto
     
-    
-
     lui $28, 0x00d9
     ori $28, $28, 0xa441       # Dourado do ninho
-
+    
     # Galinha 1
     lui $27, 0x1001
     addi $27, $27, 2608
@@ -457,6 +456,22 @@ player:
 
     # Inicializar contador de ovos que cairam
     addi $26, $0, 0
+
+    # Inicializar pontuacao (ovos pegos)
+    addi $21, $0, 0
+    
+    # Desenhar os 5 indicadores de ovo em cinza
+    lui $19, 0x0090
+    ori $19, $19, 0x9090
+    addi $26, $0, 1
+
+indicadoresIniciais:
+    jal marcarOvo
+    addi $26, $26, 1
+    slti $13, $26, 6
+    bne $13, $0, indicadoresIniciais
+
+    addi $26, $0, 0            # zera o contador de ovos que cairam
     
     jal iniciarOvo
     
@@ -517,20 +532,24 @@ digD:
     j moverCesto
     
 moverCesto:
-    # Restaurar o cenario na posicao antiga
+    # 1) Apagar o ovo (ele esta por cima da cesta)
+    jal apagarOvo
+
+    # 2) Restaurar o cenario na posicao antiga
     jal restaurarCenario
 
     # Atualizar a posicao da cesta
     add $8, $8, $14
 
-    # Salvar o cenario na nova posicao
+    # 3) Salvar o cenario e desenhar a cesta na nova posicao
     jal salvarCenario
-
-    # Desenhar a cesta na nova posicao
     jal desenharCesto
 
-    j plrGo
+    # 4) Salvar o fundo atual do ovo (ja com a cesta) e redesenha-lo
+    jal salvarFundoOvo
+    jal desenharOvo
 
+    j plrGo
 
 continuarCiclo:
     j plrGo
@@ -602,22 +621,14 @@ escolherGalinha:
     lw $4, 1544($29)
     sw $4, 44($27)
 
-    # Desenhar o ovo branco: 3 colunas x 4 linhas
-    sw $7, 0($29)
     sw $7, 4($29)
-    sw $7, 8($29)
-
     sw $7, 512($29)
     sw $7, 516($29)
     sw $7, 520($29)
-
     sw $7, 1024($29)
     sw $7, 1028($29)
     sw $7, 1032($29)
-
-    sw $7, 1536($29)
     sw $7, 1540($29)
-    sw $7, 1544($29)
 
     jr $31
 
@@ -689,21 +700,15 @@ atualizarOvo:
     sw $4, 44($27)
 
     # Desenhar o ovo na nova posicao
-    sw $7, 0($29)
+    
     sw $7, 4($29)
-    sw $7, 8($29)
-
     sw $7, 512($29)
     sw $7, 516($29)
     sw $7, 520($29)
-
     sw $7, 1024($29)
     sw $7, 1028($29)
     sw $7, 1032($29)
-
-    sw $7, 1536($29)
     sw $7, 1540($29)
-    sw $7, 1544($29)
 
     jr $6
 
@@ -734,6 +739,12 @@ verificarCaptura:
     bne $17, $0, ovoPerdido
 
 capturou:
+    addi $21, $21, 1
+
+    # Indicador verde escuro
+    ori $19, $0, 0x9900
+    jal marcarOvo
+
     addi $2, $0, 1
     addi $4, $0, 1
     syscall
@@ -741,12 +752,16 @@ capturou:
     j verificarFim
 
 ovoPerdido:
+    # Indicador vermelho escuro
+    lui $19, 0x008b
+    jal marcarOvo
+
     j verificarFim
 
 verificarFim:
     # Verificar se cinco ovos ja cairam
     addi $5, $0, 5
-    beq $26, $5, fim
+    beq $26, $5, telaFinal
 
     jal iniciarOvo
     jr $6
@@ -857,25 +872,25 @@ desenharCesto:
     sw $25, 68($8)
 
     # Linha do meio: laterais
-    	sw $25, 508($8)
-    	sw $25, 512($8)
-    	sw $25, 516($8)
-	sw $25, 520($8)
-	sw $25, 524($8)
-	sw $25, 528($8)
-	sw $25, 532($8)
-	sw $25, 536($8)
-	sw $25, 540($8)
-	sw $25, 544($8)
-	sw $25, 548($8)
-	sw $25, 552($8)
-	sw $25, 556($8)
-	sw $25, 560($8)
-	sw $25, 564($8)
-	sw $25, 568($8)
-	sw $25, 572($8)
-	sw $25, 576($8)
-	
+    sw $25, 508($8)
+    sw $25, 512($8)
+    sw $25, 516($8)
+    sw $25, 520($8)
+    sw $25, 524($8)
+    sw $25, 528($8)
+    sw $25, 532($8)
+    sw $25, 536($8)
+    sw $25, 540($8)
+    sw $25, 544($8)
+    sw $25, 548($8)
+    sw $25, 552($8)
+    sw $25, 556($8)
+    sw $25, 560($8)
+    sw $25, 564($8)
+    sw $25, 568($8)
+    sw $25, 572($8)
+    sw $25, 576($8)
+
     # Linha inferior: fundo completo
     addi $9, $0, 16
     addi $13, $8, 1024
@@ -888,7 +903,219 @@ desenharFundoCesto:
 
     jr $31
 
+# ===== TELA FINAL =====
+# $21 = ovos pegos (0 a 5)
 
+telaFinal:
+    # tela final transparente
+    lui $8, 0x100b
+    ori $4, $0, 0x0230
+    addi $10, $0, 8192
+
+finalFundo:
+    sw $4, 0($8)
+    addi $8, $8, 4
+    addi $10, $10, -1
+    bne $10, $0, finalFundo
+
+    # Cor da mensagem: verde se venceu, vermelho se perdeu
+    addi $13, $0, 5
+    bne $21, $13, finalCorPerdeu
+    lui $22, 0x0000
+    ori $22, $22, 0x9900
+    j finalMensagem
+
+finalCorPerdeu:
+    lui $22, 0x00ff
+    ori $22, $22, 0x5050
+
+finalMensagem:
+    # "VOCE " (x = 42, y = 20)
+    lui $27, 0x1001
+    addi $27, $27, 10408
+
+    jal letraV
+    addi $27, $27, 16
+    jal letraO
+    addi $27, $27, 16
+    jal letraC
+    addi $27, $27, 16
+    jal letraE
+    jal acentoCircunflexo
+    addi $27, $27, 16
+    addi $27, $27, 16          # espaco
+
+    addi $13, $0, 5
+    bne $21, $13, finalPalavraPerdeu
+
+    # VENCEU
+    jal letraV
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraN
+    addi $27, $27, 16
+    jal letraC
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraU
+    j finalPontuacao
+
+finalPalavraPerdeu:
+    # PERDEU
+    jal letraP
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraR
+    addi $27, $27, 16
+    jal letraD
+    addi $27, $27, 16
+    jal letraE
+    addi $27, $27, 16
+    jal letraU
+
+finalPontuacao:
+    # Pontuacao em branco: N/5 (x = 58, y = 32)
+    lui $22, 0x00ff
+    ori $22, $22, 0xffff
+
+    lui $27, 0x1001
+    addi $27, $27, 16616
+
+    # Escolher o digito N
+    beq $21, $0, finalD0
+    addi $13, $0, 1
+    beq $21, $13, finalD1
+    addi $13, $0, 2
+    beq $21, $13, finalD2
+    addi $13, $0, 3
+    beq $21, $13, finalD3
+    addi $13, $0, 4
+    beq $21, $13, finalD4
+    jal numero5
+    j finalBarra
+
+finalD0:
+    jal numero0
+    j finalBarra
+finalD1:
+    jal numero1
+    j finalBarra
+finalD2:
+    jal numero2
+    j finalBarra
+finalD3:
+    jal numero3
+    j finalBarra
+finalD4:
+    jal numero4
+
+finalBarra:
+    addi $27, $27, 16
+    jal simboloBarra
+    addi $27, $27, 16
+    jal numero5
+
+    j fim
+
+# Restaura o fundo salvo em $27 sobre a posicao do ovo ($29)
+apagarOvo:
+    lw $4, 0($27)
+    sw $4, 0($29)
+    lw $4, 4($27)
+    sw $4, 4($29)
+    lw $4, 8($27)
+    sw $4, 8($29)
+
+    lw $4, 12($27)
+    sw $4, 512($29)
+    lw $4, 16($27)
+    sw $4, 516($29)
+    lw $4, 20($27)
+    sw $4, 520($29)
+
+    lw $4, 24($27)
+    sw $4, 1024($29)
+    lw $4, 28($27)
+    sw $4, 1028($29)
+    lw $4, 32($27)
+    sw $4, 1032($29)
+
+    lw $4, 36($27)
+    sw $4, 1536($29)
+    lw $4, 40($27)
+    sw $4, 1540($29)
+    lw $4, 44($27)
+    sw $4, 1544($29)
+    jr $31
+
+# Salva em $27 o que esta na tela sob o ovo ($29)
+salvarFundoOvo:
+    lw $4, 0($29)
+    sw $4, 0($27)
+    lw $4, 4($29)
+    sw $4, 4($27)
+    lw $4, 8($29)
+    sw $4, 8($27)
+
+    lw $4, 512($29)
+    sw $4, 12($27)
+    lw $4, 516($29)
+    sw $4, 16($27)
+    lw $4, 520($29)
+    sw $4, 20($27)
+
+    lw $4, 1024($29)
+    sw $4, 24($27)
+    lw $4, 1028($29)
+    sw $4, 28($27)
+    lw $4, 1032($29)
+    sw $4, 32($27)
+
+    lw $4, 1536($29)
+    sw $4, 36($27)
+    lw $4, 1540($29)
+    sw $4, 40($27)
+    lw $4, 1544($29)
+    sw $4, 44($27)
+    jr $31
+
+# Desenha o ovo ($7) em $29
+desenharOvo:
+    sw $7, 4($29)
+    sw $7, 512($29)
+    sw $7, 516($29)
+    sw $7, 520($29)
+    sw $7, 1024($29)
+    sw $7, 1028($29)
+    sw $7, 1032($29)
+    sw $7, 1540($29)
+    jr $31
+
+# Pinta o indicador do ovo numero $26 (1 a 5) com a cor $19
+marcarOvo:
+    # endereco = base + 9200 + (N-1) * 3072
+    addi $13, $26, -1
+    addi $20, $0, 3072
+    mult $13, $20
+    mflo $13
+    lui $20, 0x1001
+    add $13, $13, $20
+    addi $13, $13, 9200        # x = 124, y = 17
+
+    sw $19, 4($13)
+    sw $19, 512($13)
+    sw $19, 516($13)
+    sw $19, 520($13)
+    sw $19, 1024($13)
+    sw $19, 1028($13)
+    sw $19, 1032($13)
+    sw $19, 1540($13)
+    jr $31
+    
+    
 fim:
     addi $2, $0, 10
     syscall
@@ -903,7 +1130,7 @@ ntfor:
 ntfim:
     jr $31
 
-# ===== LETRAS 3x5 =====
+# LETRAS 3x5
 # $27 = canto superior esquerdo, $22 = cor
 
 letraA:
@@ -1153,4 +1380,103 @@ letraV:
 # Acento agudo: 1 pixel na linha acima da letra, coluna da direita
 acentoAgudo:
     sw $22, -504($27)
+    jr $31
+
+# NUMEROS 3x5
+
+numero0:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+numero1:
+    sw $22, 4($27)
+    sw $22, 512($27)
+    sw $22, 516($27)
+    sw $22, 1028($27)
+    sw $22, 1540($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+numero2:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1536($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+numero3:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+numero4:
+    sw $22, 0($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 520($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1544($27)
+    sw $22, 2056($27)
+    jr $31
+
+numero5:
+    sw $22, 0($27)
+    sw $22, 4($27)
+    sw $22, 8($27)
+    sw $22, 512($27)
+    sw $22, 1024($27)
+    sw $22, 1028($27)
+    sw $22, 1032($27)
+    sw $22, 1544($27)
+    sw $22, 2048($27)
+    sw $22, 2052($27)
+    sw $22, 2056($27)
+    jr $31
+
+# ===== SIMBOLO "/" =====
+simboloBarra:
+    sw $22, 8($27)
+    sw $22, 520($27)
+    sw $22, 1028($27)
+    sw $22, 1536($27)
+    sw $22, 2048($27)
+    jr $31
+
+# ===== ACENTO CIRCUNFLEXO =====
+# Forma de "^" duas linhas acima da letra, com uma linha de folga
+acentoCircunflexo:
+    sw $22, -1532($27)
+    sw $22, -1024($27)
+    sw $22, -1016($27)
     jr $31
