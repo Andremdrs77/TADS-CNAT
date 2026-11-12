@@ -579,6 +579,26 @@ escolherGalinha:
     beq $4, $3, escolherGalinha
     add $3, $4, $0
 
+    # "Po po" da galinha antes de soltar o ovo
+    add $22, $31, $0           # guardar o retorno (os jal abaixo sobrescrevem $31)
+
+    addi $18, $0, 72
+    addi $19, $0, 70
+    addi $20, $0, 115          # Woodblock
+    jal tocarNota
+
+    addi $19, $0, 90
+    jal esperar
+
+    addi $18, $0, 69
+    addi $19, $0, 70
+    jal tocarNota
+
+    addi $19, $0, 260          # tempo entre o "po po" e o ovo aparecer
+    jal esperar
+
+    add $31, $22, $0           # restaurar o retorno
+    
     # Calcular a posicao inicial do ovo
     lui $29, 0x1001
     addi $29, $29, 5680
@@ -745,9 +765,11 @@ capturou:
     ori $19, $0, 0x9900
     jal marcarOvo
 
-    addi $2, $0, 1
-    addi $4, $0, 1
-    syscall
+    # Som de captura: sino curto e agudo
+    addi $18, $0, 84
+    addi $19, $0, 160
+    addi $20, $0, 9            # Glockenspiel
+    jal tocarNota
 
     j verificarFim
 
@@ -755,6 +777,12 @@ ovoPerdido:
     # Indicador vermelho escuro
     lui $19, 0x008b
     jal marcarOvo
+
+    # Som de perda: batida grave e curta
+    addi $18, $0, 48
+    addi $19, $0, 220
+    addi $20, $0, 117          # Melodic Tom
+    jal tocarNota
 
     j verificarFim
 
@@ -1114,8 +1142,32 @@ marcarOvo:
     sw $19, 1032($13)
     sw $19, 1540($13)
     jr $31
+
+# Toca uma nota sem travar o jogo
+# $18 = nota, $19 = duracao (ms), $20 = instrumento
+tocarNota:
+    add $23, $6, $0            # guardar $6 (retorno do atualizarOvo)
+    add $24, $7, $0            # guardar $7 (cor do ovo)
+
+    add $4, $18, $0
+    add $5, $19, $0
+    add $6, $20, $0
+    addi $7, $0, 80            # volume
+    addi $2, $0, 31
+    syscall
+
+    add $6, $23, $0
+    add $7, $24, $0
+    jr $31
+
+# Pausa de $19 milissegundos
+esperar:
+    add $4, $19, $0
+    addi $2, $0, 32
+    syscall
+    jr $31    
     
-    
+ 
 fim:
     addi $2, $0, 10
     syscall
