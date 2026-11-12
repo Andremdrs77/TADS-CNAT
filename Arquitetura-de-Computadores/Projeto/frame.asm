@@ -1,5 +1,14 @@
 .text
 main:
+    # Aquecer o sintetizador MIDI (nota silenciosa)
+    addi $4, $0, 60
+    addi $5, $0, 10
+    addi $6, $0, 0
+    addi $7, $0, 0             # volume 0
+    addi $2, $0, 33
+    syscall
+    add $4, $0, $0             # devolve $4 a zero, como o resto do main espera
+
     # Endereco inicial da memoria grafica
     lui $8, 0x1001
 
@@ -584,17 +593,17 @@ escolherGalinha:
 
     addi $18, $0, 72
     addi $19, $0, 70
-    addi $20, $0, 115          # Woodblock
+    addi $20, $0, 115
     jal tocarNota
 
-    addi $19, $0, 90
+    addi $19, $0, 60
     jal esperar
 
     addi $18, $0, 69
     addi $19, $0, 70
     jal tocarNota
 
-    addi $19, $0, 260          # tempo entre o "po po" e o ovo aparecer
+    addi $19, $0, 150          # tempo ate o ovo aparecer
     jal esperar
 
     add $31, $22, $0           # restaurar o retorno
@@ -767,8 +776,9 @@ capturou:
 
     # Som de captura: sino curto e agudo
     addi $18, $0, 84
-    addi $19, $0, 160
-    addi $20, $0, 9            # Glockenspiel
+    addi $19, $0, 90
+    addi $20, $0, 9
+
     jal tocarNota
 
     j verificarFim
@@ -780,8 +790,8 @@ ovoPerdido:
 
     # Som de perda: batida grave e curta
     addi $18, $0, 48
-    addi $19, $0, 220
-    addi $20, $0, 117          # Melodic Tom
+    addi $19, $0, 110
+    addi $20, $0, 117
     jal tocarNota
 
     j verificarFim
