@@ -2,6 +2,12 @@
 main:
     # Aquecer o sintetizador MIDI (nota silenciosa)
     addi $4, $0, 60
+
+    # Fase atual = 1
+    lui $13, 0x1002
+    addi $14, $0, 1
+    sw $14, 0($13)
+
     addi $5, $0, 10
     addi $6, $0, 0
     addi $7, $0, 0             # volume 0
@@ -237,6 +243,7 @@ aguardarTecla:
     # Ler a tecla pressionada
     lw $17, 4($16)
 
+iniciarFase:
     # Preparar o endereco inicial do cenario
     lui $8, 0x1001
 
@@ -335,29 +342,76 @@ desenharGalinhas:
     lui $28, 0x00d9
     ori $28, $28, 0xa441       # Dourado do ninho
     
-    # Galinha 1
+    # Fase atual
+    lui $13, 0x1002
+    lw $13, 0($13)
+    addi $14, $0, 2
+    beq $13, $14, galinhasFase2
+
+    # ===== Fase 1: cinco galinhas fixas =====
     lui $27, 0x1001
     addi $27, $27, 2608
     jal desenharGalinha
 
-    # Galinha 2
     lui $27, 0x1001
     addi $27, $27, 2704
     jal desenharGalinha
 
-    # Galinha 3
     lui $27, 0x1001
     addi $27, $27, 2800
     jal desenharGalinha
 
-    # Galinha 4
     lui $27, 0x1001
     addi $27, $27, 2896
     jal desenharGalinha
 
-    # Galinha 5
     lui $27, 0x1001
     addi $27, $27, 2992
+    jal desenharGalinha
+    j player
+
+    # ===== Fase 2: tres galinhas moveis =====
+galinhasFase2:
+    # Colunas iniciais e direcoes
+    lui $13, 0x1002
+    addi $14, $0, 17
+    sw $14, 4($13)
+    addi $14, $0, 55
+    sw $14, 8($13)
+    addi $14, $0, 93
+    sw $14, 12($13)
+    addi $14, $0, 1
+    sw $14, 16($13)
+    addi $14, $0, -1
+    sw $14, 20($13)
+    addi $14, $0, 1
+    sw $14, 24($13)
+
+    # Guardar o fundo (uma coluna) das linhas 5 a 10, ainda sem galinhas
+    lui $15, 0x1001
+    addi $15, $15, 2560
+    lui $14, 0x1002
+    addi $14, $14, 32
+    addi $10, $0, 6
+salvaFundoGalinha:
+    lw $9, 0($15)
+    sw $9, 0($14)
+    addi $15, $15, 512
+    addi $14, $14, 4
+    addi $10, $10, -1
+    bne $10, $0, salvaFundoGalinha
+
+    # Desenhar as 3 galinhas (colunas 17, 55 e 93)
+    lui $27, 0x1001
+    addi $27, $27, 2628
+    jal desenharGalinha
+
+    lui $27, 0x1001
+    addi $27, $27, 2780
+    jal desenharGalinha
+
+    lui $27, 0x1001
+    addi $27, $27, 2932
     jal desenharGalinha
 
     j player
@@ -454,7 +508,7 @@ player:
     jal desenharCesto
 
     # Inicializar o sistema de ovos
-    addi $3, $0, 0        # Indice da proxima galinha
+    addi $3, $0, -1       # Indice da ultima galinha (nenhuma ainda)
     addi $11, $0, 20000   # Intervalo entre movimentos do ovo
 
     # Reservar 48 bytes para salvar o fundo do ovo
@@ -491,6 +545,7 @@ plrGo:
 
     addi $11, $0, 20000
     jal atualizarOvo
+    jal moverGalinhas
 
 verificarTeclado:
     # Verificar se existe uma tecla disponivel
@@ -578,9 +633,17 @@ continuarCiclo:
 
 iniciarOvo:
 escolherGalinha:
-    # Sortear uma galinha entre 0 e 4
+    # Fase atual em $13
+    lui $13, 0x1002
+    lw $13, 0($13)
+    addi $14, $0, 2
+
+    # Fase 1: sorteia 0 a 4. Fase 2: sorteia 0 a 2
     addi $4, $0, 0
     addi $5, $0, 5
+    bne $13, $14, sortear
+    addi $5, $0, 3
+sortear:
     addi $2, $0, 42
     syscall
 
@@ -609,14 +672,30 @@ escolherGalinha:
     add $31, $22, $0           # restaurar o retorno
     
     # Calcular a posicao inicial do ovo
+    lui $13, 0x1002
+    lw $14, 0($13)
+    addi $15, $0, 2
+    bne $14, $15, ovoFase1
+
+    # Fase 2: o ovo nasce embaixo da posicao atual da galinha $3
+    sll $14, $3, 2
+    add $14, $14, $13
+    lw $14, 4($14)             # coluna da galinha
+    sll $14, $14, 2
+    lui $29, 0x1001
+    addi $29, $29, 5632
+    add $29, $29, $14
+    j ovoPosicionado
+
+ovoFase1:
     lui $29, 0x1001
     addi $29, $29, 5680
-
-    # Cada galinha esta 96 bytes depois da anterior
-    addi $13, $0, 96
+    addi $13, $0, 96           # cada galinha esta 96 bytes depois da anterior
     mult $3, $13
     mflo $13
     add $29, $29, $13
+
+ovoPosicionado:
 
     # O ovo desaparece ao chegar ao topo da cesta
     addi $12, $29, 22528
@@ -865,76 +944,82 @@ restaurarUnidade:
 # $25 = cor marrom.
 # Formato: laterais e fundo, com interior vazio.
 
+# Cesto de palha: laterais trancadas, borda dourada e base escura.
+# $8 = referencia do cesto (mesma de antes)
+# Usa $4, $5, $18, $19 como cores temporarias (livres nesse ponto)
 desenharCesto:
+    # Cores
+    lui $4, 0x005c
+    ori $4, $4, 0x3a1a         # marrom escuro (sombra / base)
+    add $5, $25, $0            # marrom medio (palha)
+    lui $18, 0x00c8
+    ori $18, $18, 0x964f       # palha clara
+    lui $19, 0x00e0
+    ori $19, $19, 0xb060       # dourado (borda)
 
-    # Mais 4 linhas acima: duas colunas por linha
-    sw $25, -1032($8)
-    sw $25, -1028($8)
-    sw $25, -1544($8)
-    sw $25, -1540($8)
-    sw $25, -2056($8)
-    sw $25, -2052($8)
-    sw $25, -2568($8)
-    sw $25, -2564($8)
-    
-    # Linha superior: laterais
-    sw $25, -1032($8)
-    sw $25, -1028($8)
-    sw $25, -960($8)
-    sw $25, -956($8)
+    # Linha -5: borda dourada
+    sw $19, -2568($8)
+    sw $19, -2564($8)
+    sw $19, -2560($8)
+    sw $19, -2500($8)
+    sw $19, -2496($8)
+    sw $19, -2492($8)
 
-    sw $25, -1544($8)
-    sw $25, -1540($8)
-    sw $25, -1472($8)
-    sw $25, -1468($8)
+    # Linha -4
+    sw $18, -2056($8)
+    sw $5,  -2052($8)
+    sw $4,  -2048($8)
+    sw $4,  -1988($8)
+    sw $5,  -1984($8)
+    sw $18, -1980($8)
 
-    sw $25, -2056($8)
-    sw $25, -2052($8)
-    sw $25, -1984($8)
-    sw $25, -1980($8)
+    # Linha -3
+    sw $5,  -1544($8)
+    sw $18, -1540($8)
+    sw $4,  -1536($8)
+    sw $4,  -1476($8)
+    sw $18, -1472($8)
+    sw $5,  -1468($8)
 
-    sw $25, -2568($8)
-    sw $25, -2564($8)
-    sw $25, -2496($8)
-    sw $25, -2492($8)
-    sw $25, -520($8)
-    sw $25, -516($8)
-    sw $25, -448($8)
-    sw $25, -444($8)
-    
-    sw $25, -8($8)
-    sw $25, -4($8)
-    sw $25, 0($8)
-    sw $25, 60($8)
-    sw $25, 64($8)
-    sw $25, 68($8)
+    # Linha -2
+    sw $18, -1032($8)
+    sw $5,  -1028($8)
+    sw $4,  -1024($8)
+    sw $4,  -964($8)
+    sw $5,  -960($8)
+    sw $18, -956($8)
 
-    # Linha do meio: laterais
-    sw $25, 508($8)
-    sw $25, 512($8)
-    sw $25, 516($8)
-    sw $25, 520($8)
-    sw $25, 524($8)
-    sw $25, 528($8)
-    sw $25, 532($8)
-    sw $25, 536($8)
-    sw $25, 540($8)
-    sw $25, 544($8)
-    sw $25, 548($8)
-    sw $25, 552($8)
-    sw $25, 556($8)
-    sw $25, 560($8)
-    sw $25, 564($8)
-    sw $25, 568($8)
-    sw $25, 572($8)
-    sw $25, 576($8)
+    # Linha -1
+    sw $5,  -520($8)
+    sw $18, -516($8)
+    sw $4,  -512($8)
+    sw $4,  -452($8)
+    sw $18, -448($8)
+    sw $5,  -444($8)
 
-    # Linha inferior: fundo completo
-    addi $9, $0, 16
+    # Linha 0: inicio do fundo
+    sw $5,  -8($8)
+    sw $18, -4($8)
+    sw $5,  0($8)
+    sw $5,  60($8)
+    sw $18, 64($8)
+    sw $5,  68($8)
+
+    # Linha 1: fundo trancado (18 unidades, alterna 2 tons)
+    addi $13, $8, 508
+    addi $9, $0, 9
+desenharTrancado:
+    sw $18, 0($13)
+    sw $5, 4($13)
+    addi $13, $13, 8
+    addi $9, $9, -1
+    bne $9, $0, desenharTrancado
+
+    # Linha 2: base escura (16 unidades)
     addi $13, $8, 1024
-
+    addi $9, $0, 16
 desenharFundoCesto:
-    sw $25, 0($13)
+    sw $4, 0($13)
     addi $13, $13, 4
     addi $9, $9, -1
     bne $9, $0, desenharFundoCesto
@@ -946,7 +1031,7 @@ desenharFundoCesto:
 
 telaFinal:
     # tela final transparente
-    lui $8, 0x100b
+    lui $8, 0x1001
     ori $4, $0, 0x0230
     addi $10, $0, 8192
 
@@ -1056,7 +1141,43 @@ finalBarra:
     addi $27, $27, 16
     jal numero5
 
-    j fim
+    # Perdeu? Repete a mesma fase
+    addi $13, $0, 5
+    bne $21, $13, finalAguardar
+
+    # Venceu: se era a fase 2, o jogo termina
+    lui $14, 0x1002
+    lw $15, 0($14)
+    addi $12, $0, 2
+    beq $15, $12, fim
+
+    # Venceu a fase 1: proxima fase = 2
+    addi $15, $0, 2
+    sw $15, 0($14)
+
+finalAguardar:
+    # Pausa para ver o placar
+    addi $4, $0, 700
+    addi $2, $0, 32
+    syscall
+
+    # Descartar teclas pendentes (A/D ainda apertados)
+finalDrenar:
+    lw $17, 0($16)
+    andi $17, $17, 1
+    beq $17, $0, finalEsperar
+    lw $17, 4($16)
+    j finalDrenar
+
+finalEsperar:
+    # Qualquer tecla reinicia (mesma fase ou fase 2)
+    lw $17, 0($16)
+    andi $17, $17, 1
+    beq $17, $0, finalEsperar
+    lw $17, 4($16)
+
+    j iniciarFase
+
 
 # Restaura o fundo salvo em $27 sobre a posicao do ovo ($29)
 apagarOvo:
@@ -1177,7 +1298,114 @@ esperar:
     syscall
     jr $31    
     
- 
+# Move aleatoriamente as 3 galinhas (so na fase 2)
+moverGalinhas:
+    lui $13, 0x1002
+    lw $14, 0($13)
+    addi $15, $0, 2
+    bne $14, $15, moverGalinhasFim
+
+    # Guardar o que a rotina vai emprestar
+    add $6, $31, $0
+    sw $27, 56($13)
+    sw $26, 60($13)
+
+    # Cores da galinha (os registradores sao sobrescritos durante o jogo)
+    lui $22, 0x00ff
+    ori $22, $22, 0xffff
+    lui $23, 0x00ff
+    ori $23, $23, 0x0000
+    lui $24, 0x00ff
+    ori $24, $24, 0xff00
+    add $26, $0, $0            # preto do olho
+
+    addi $9, $0, 4             # coluna minima da zona
+    addi $10, $0, 0            # indice da galinha
+
+moverLoop:
+    sll $14, $10, 2
+    add $14, $14, $13
+    lw $19, 4($14)             # coluna atual
+    lw $18, 16($14)            # direcao
+
+    # Sorteio 0..19: 0 inverte a direcao (1 chance em 20)
+    addi $4, $0, 0
+    addi $5, $0, 20
+    addi $2, $0, 42
+    syscall
+    bne $4, $0, galinhaTenta
+
+galinhaInverte:
+    sub $18, $0, $18
+
+galinhaTenta:
+    sll $15, $18, 1            # passo de 2 colunas
+    add $17, $19, $15          # nova coluna
+    slt $4, $17, $9
+    bne $4, $0, galinhaBateEsq
+    addi $4, $9, 26            # coluna maxima da zona
+    slt $4, $4, $17
+    bne $4, $0, galinhaBateDir
+
+    # Mover: apagar na posicao antiga e desenhar na nova
+    sw $18, 16($14)
+    jal apagarGalinha
+    sw $17, 4($14)
+    sll $20, $17, 2
+    lui $27, 0x1001
+    addi $27, $27, 2560
+    add $27, $27, $20
+    jal desenharGalinha
+    j galinhaProxima
+
+galinhaBateEsq:
+    addi $18, $0, 1
+    sw $18, 16($14)
+    j galinhaProxima
+
+galinhaBateDir:
+    addi $18, $0, -1
+    sw $18, 16($14)
+
+galinhaProxima:
+    addi $9, $9, 38            # proxima zona
+    addi $10, $10, 1
+    addi $15, $0, 3
+    bne $10, $15, moverLoop
+
+    # Devolver o que foi emprestado
+    lui $13, 0x1002
+    lw $27, 56($13)
+    lw $26, 60($13)
+    add $31, $6, $0
+
+moverGalinhasFim:
+    jr $31
+
+# Apaga a galinha da coluna $19 repintando 12 colunas x 6 linhas com o fundo salvo
+apagarGalinha:
+    lui $4, 0x1001
+    addi $4, $4, 2552          # linha 5, coluna -2
+    sll $5, $19, 2
+    add $4, $4, $5
+    lui $5, 0x1002
+    addi $5, $5, 32
+    addi $15, $0, 6
+apagaLinha:
+    lw $20, 0($5)
+    addi $2, $0, 12
+apagaPixel:
+    sw $20, 0($4)
+    addi $4, $4, 4
+    addi $2, $2, -1
+    bne $2, $0, apagaPixel
+    addi $4, $4, 464           # 512 - 48
+    addi $5, $5, 4
+    addi $15, $15, -1
+    bne $15, $0, apagaLinha
+    jr $31
+
+
 fim:
     addi $2, $0, 10
     syscall
